@@ -18,6 +18,22 @@
   box-shadow: 0 0 5px 2px rgba(0, 0, 0, 0.3);
 }
 
+.rotate {
+  position: absolute;
+  top: -2rem;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 1.5rem;
+  height: 1.5rem;
+  display: flex;  
+  justify-content: center;
+  align-items: center;
+  font-size: 1.2rem;
+  z-index: var(--max-z-index);
+  color: skyblue;
+  cursor: pointer;
+}
+
 .t {
   position: absolute;
   top: 0;

@@ -20,6 +20,7 @@
     "@antfu/eslint-config": "1.0.0-beta.27",
     "@unocss/transformer-directives": "^0.56.5",
     "unocss": "^0.56.5",
+    "vite-plugin-vue-devtools": "1.0.0-rc.5",
     "vue": "^3.3.4"
   },
   "devDependencies": {

@@ -17,9 +17,13 @@ export const Props = {
     type: Number,
     default: 0,
   },
+  rotate: {
+    type: Number,
+    default: 0,
+  },
   showCoords: {
     type: Boolean,
-    default: false,
+    default: true,
   },
 } as const
 

@@ -5,12 +5,13 @@ import { Props } from './props.d'
 
 const props = defineProps(Props)
 
-// 基础配置--------------------------------------
+// 基础配置
 const initStyle = ref({
   width: props.width,
   height: props.height,
   left: props.left,
   top: props.top,
+  rotate: props.rotate,
 })
 const scaleableStyle = computed(() => {
   return {
@@ -18,16 +19,20 @@ const scaleableStyle = computed(() => {
     height: `${initStyle.value.height}px`,
     left: `${initStyle.value.left}px`,
     top: `${initStyle.value.top}px`,
+    transform: `rotate(${initStyle.value.rotate}deg)`,
   }
 })
 
-// 选中状态 ------------------------------------
+// 选中状态
 const selected = ref(false)
 function clickHanlder(e: MouseEvent) {
   e.stopPropagation()
   selected.value = true
+
+  // 坐标计算
+  calculateCoordinate()
 }
-// 点击任意非选中区域，取消选中状态
+// 点击任意非选中区域，取消选中状态 没有选中状态的话，旋转点和缩放点都不会展示
 document.addEventListener('click', () => {
   selected.value = false
 })
@@ -53,6 +58,7 @@ const delta = { x: 0, y: 0 }
 let mode = 'normal'
 
 function mousedownHandler(e: MouseEvent) {
+  selected.value = true
   moveLock.value = true
   const { clientX, clientY } = e
   dragStart.x = clientX
@@ -81,9 +87,9 @@ function mouseupHandler() {
   document.removeEventListener('mousemove', mousemoveHandler)
   document.removeEventListener('mouseup', mouseupHandler)
 }
-// ----------------------------------------------------------------
+// ----------------------------------------------------------------拖动end
 
-// 缩放------------------------------------------------------------
+// 缩放----------------------------------------------------------------
 const scaleLock = ref(false)
 let directionEnum: Orientation = 'rb'
 const startTans = { x: 0, y: 0 } // 自由
@@ -111,6 +117,7 @@ function mouseupTransHandler() {
   scaleLock.value = false
   document.removeEventListener('mousemove', mousemoveTransHandler)
   document.removeEventListener('mouseup', mouseupTransHandler)
+
 }
 // 自由 ------------------------------------------------
 function normal(e: MouseEvent) {
@@ -142,7 +149,7 @@ function normal(e: MouseEvent) {
   startTans.x = clientX
   startTans.y = clientY
 }
-// 等比 因为等比可能会有其他不同的需求，单独拆出写，后面方便按需改 -----------------------
+// 等比 因为等比可能会有其他不同的需求，单独拆出写，后面方便按需改 
 function ratio(e: MouseEvent) {
   initStyle.value = { ...lockCurrent }
   const { clientX, clientY } = e
@@ -189,34 +196,24 @@ function ratio(e: MouseEvent) {
     initStyle.value.top = lockCurrent.top + lockCurrent.height - initStyle.value.height
 
 }
+// ---------------------------------------------------------------缩放end
 
-// 坐标计算 ------------------------------------------------
+// 坐标计算 -------------------------------------------------------
 // 当开始拖动或者缩放的时候 我们会在图形的四个顶点展示坐标
 // 这里我们需要计算出四个顶点的坐标
 // 但是我们不需要每次都计算，只有在拖动或者缩放的时候才需要计算
 // 所以我们可以把计算的逻辑放到一个函数里面，然后在拖动或者缩放的时候调用
 const coordinate = ref<Coordinate>()
 function calculateCoordinate() {
-  // 计算出四个顶点的坐标
-  const lt = {
-    x: initStyle.value.left,
-    y: initStyle.value.top,
-  }
-  const rt = {
-    x: initStyle.value.left + initStyle.value.width,
-    y: initStyle.value.top,
-  }
-  const rb = {
-    x: initStyle.value.left + initStyle.value.width,
-    y: initStyle.value.top + initStyle.value.height,
-  }
-  const lb = {
-    x: initStyle.value.left,
-    y: initStyle.value.top + initStyle.value.height,
-  }
+  // 计算出四个顶点的坐标 需考虑旋转
+  const { left, top, width, height } = initStyle.value
+  const lt = { x: left, y: top }
+  const rt = {x: left + width, y: top}
+  const rb = { x: left + width, y: top + height}
+  const lb = { x: left, y: top + height}
   return coordinate.value = { lt, rt, rb, lb }
 }
-// ----------------------------------------------------------------
+// -------------------------------------------------------------坐标计算end
 const keyupHandler = (e: KeyboardEvent) => {
   mode = e.key === 'Shift' ? 'normal' : 'ratio'
 }
@@ -227,7 +224,81 @@ onUnmounted(() => {
   document.removeEventListener('keyup', keyupHandler)
 })
 
-// expose -------------------------------------------
+// 旋转计算 --------------------------------------------------------------------------
+const rotateLock = ref(false)
+function rotateHanlder(e: MouseEvent) {
+  e.stopPropagation()
+  rotateLock.value = true
+  console.log('rotate', rotateLock.value)
+  document.addEventListener('mousemove', mousemoveRotateHandler)
+  document.addEventListener('mouseup', mouseupRotateHandler)
+}
+function mousemoveRotateHandler(e: MouseEvent) {
+  if (!rotateLock)
+    return
+  const { clientX, clientY } = e
+  // 两个对角线的函数分别是y = k1 * x + b1 和 y = k2 * x + b2
+  // 我们可以通过两个点的坐标来计算出k和b
+  function calcFx(p1: { x: number, y: number }, p2: { x: number, y: number }) {
+    const k = (p2.y - p1.y) / (p2.x - p1.x)
+    const b = p1.y - k * p1.x
+    return { k, b }
+  }
+  const { lt, rt, rb, lb } = coordinate.value as Coordinate
+  const { k: k1, b: b1 } = calcFx(lt, rb)
+  const { k: k2, b: b2 } = calcFx(rt, lb)
+  // 计算交点
+  // 即 k1 * x + b1 = k2 * x + b2 
+  const x0 = (b2 - b1) / (k1 - k2)
+  const y0 = k1 * x0 + b1
+  const thePoint = { x: x0, y: y0 } // 交点即为中心点
+
+  // 接下来需要计算的就是旋转的角度
+  function calcAngle(p0: { x: number, y: number }, target: { x: number, y: number }) {
+    const x = target.x - p0.x
+    const y = target.y - p0.y
+    // 
+    const angle = Math.atan2(x, y) * (180 / Math.PI) 
+    return 180 - angle
+  }
+  const theTheta = calcAngle(thePoint, { x: clientX, y: clientY })
+  initStyle.value.rotate = theTheta
+
+  // 计算出旋转后的四个顶点的坐标
+  function calculateRotateCoordinate() {
+    const theta = theTheta
+    const center = thePoint
+    // 把对角线当作直径，圆心即位中心点
+    // theta代表旋转的角度
+    // 1. 先算出半径
+    // 先随便找一个顶点 
+    const p = coordinate.value?.lb as { x: number, y: number }
+    const R = Math.sqrt(Math.pow(p.x - center.x, 2) + Math.pow(p.y - center.y, 2))
+    // 2. 算出旋转后的四个顶点的坐标 例如 lt 的横坐标即为 center.x + R * cos(theta) 纵坐标 center.y + R * sin(theta)
+    console.log(theta, R, 'xxxx')
+
+    return {lt, rt, rb, lb}
+  }
+  const coords = calculateRotateCoordinate()
+  coordinate.value = coords
+}
+function mouseupRotateHandler() {
+  rotateLock.value = false
+  document.removeEventListener('mousemove', mousemoveRotateHandler)
+  document.removeEventListener('mouseup', mouseupRotateHandler)
+}
+// ------------------------------------------------------------旋转计算end
+
+function reset(e: MouseEvent) {
+  e.preventDefault()
+  e.stopPropagation()
+  selected.value = false
+  moveLock.value = false
+  scaleLock.value = false
+  rotateLock.value = false
+}
+
+// expose ------------------------------------------------------
 function setMode(m: 'normal' | 'ratio') {
   mode = m
 }
@@ -245,7 +316,8 @@ defineExpose({
 </script>
 
 <template>
-  <div class="transable" 
+  <div 
+    class="transable" 
     :class="{
       'selected': selected,
       'transable-wrapper': selected,
@@ -253,18 +325,22 @@ defineExpose({
     :style="scaleableStyle" 
     @click="clickHanlder" 
     @mousedown="mousedownHandler"
-    @contextmenu.prevent="moveLock = false"
+    @contextmenu="reset"
   >
     <slot />
+    <!-- 旋转图标 -->
+    <div v-if="selected" class="rotate" @mousedown="rotateHanlder">↻</div>
     <!-- 八个方向的点 -->
     <template v-for="(item) of orientation" :key="item">
-      <div v-if="selected" :class="item" class="bigger bg-blue-400"
-        @mousedown.stop="($event) => mousedownTransHandler($event, item)" />
+      <div 
+        v-if="selected" :class="item" class="bigger bg-blue-400"
+        @mousedown.stop="($event) => mousedownTransHandler($event, item)" 
+      />
     </template>
     <!-- 四个角的坐标 -->
     <template v-for="(item) of ratioOrientation" :key="item">
-      <div v-if="(moveLock || scaleLock) && props.showCoords" :class='[`ratio-${item}`, item]'>
-        [{{ ~~(coordinate?.[item].x || 0) }}, {{ ~~(coordinate?.[item].y || 0) }}]   
+      <div v-if="(moveLock || scaleLock || rotateLock) && props.showCoords" :class='[`ratio-${item}`, item]'>
+        [{{ ~~(coordinate?.[item].x || 0) }}, {{ ~~(coordinate?.[item].y || 0) }}]
       </div>
     </template>
   </div>

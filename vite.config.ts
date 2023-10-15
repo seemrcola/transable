@@ -3,19 +3,19 @@ import vue from '@vitejs/plugin-vue'
 import Unocss from 'unocss/vite'
 import fs from 'fs'
 import path from 'path'
+import VueDevTool from 'vite-plugin-vue-devtools'
 
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [
+    VueDevTool(),
     vue(),
     Unocss(),
     {
       name: 'vite-plugin-del',
       closeBundle() {
-        // 删除打包后的index.html style.css vite.svg
-        // fs.unlinkSync(path.resolve(__dirname, 'dist/index.html'))
-        // fs.unlinkSync(path.resolve(__dirname, 'dist/style.css'))
-        // fs.unlinkSync(path.resolve(__dirname, 'dist/vite.svg'))
+        // do something
+        console.log(fs, path)
       },
     },
   ],

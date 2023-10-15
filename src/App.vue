@@ -18,7 +18,7 @@ function toggle() {
 
 <template>
   <div class="wrapper">
-    <Tran ref="trans" class="tran"></Tran>
+    <Tran ref="trans" :left="500" :top="500" class="tran"></Tran>
   </div>
   <button @click="toggle">click me toggle mode</button>
 </template>
