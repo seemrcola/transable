@@ -5,7 +5,7 @@ import { Props } from './props.d'
 
 const props = defineProps(Props)
 
-// 基础配置
+// 样式对象------------------------------------------
 const initStyle = ref({
   width: props.width,
   height: props.height,
@@ -22,8 +22,9 @@ const scaleableStyle = computed(() => {
     transform: `rotate(${initStyle.value.rotate}deg)`,
   }
 })
+// ------------------------------------------------------- 
 
-// 选中状态
+// 选中状态 ------------------------------------------------
 const selected = ref(false)
 function clickHanlder(e: MouseEvent) {
   e.stopPropagation()
@@ -32,12 +33,13 @@ function clickHanlder(e: MouseEvent) {
   // 坐标计算
   calculateCoordinate()
 }
-// 点击任意非选中区域，取消选中状态 没有选中状态的话，旋转点和缩放点都不会展示
+// 点击任意非选中区域，取消选中状态
+// 没有选中状态的话，旋转点和缩放点都不会展示
 document.addEventListener('click', () => {
   selected.value = false
 })
 
-// 方位与坐标--------------------------------------------------------------
+// 方位与坐标---------------------------------------------
 type Orientation = 'lt' | 'rt' | 'rb' | 'lb' | 't' | 'r' | 'b' | 'l'
 const orientation: Orientation[] = ['lt', 'rt', 'rb', 'lb', 't', 'r', 'b', 'l']
 
@@ -51,7 +53,7 @@ type Coordinate = {
   lb: { x: number, y: number },
 }
 
-// 拖动--------------------------------------------------------------
+// 拖动>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 const moveLock = ref(false)
 const dragStart = { x: 0, y: 0 }
 const delta = { x: 0, y: 0 }
@@ -87,9 +89,9 @@ function mouseupHandler() {
   document.removeEventListener('mousemove', mousemoveHandler)
   document.removeEventListener('mouseup', mouseupHandler)
 }
-// ----------------------------------------------------------------拖动end
+// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<拖动end
 
-// 缩放----------------------------------------------------------------
+// 缩放>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 const scaleLock = ref(false)
 let directionEnum: Orientation = 'rb'
 const startTans = { x: 0, y: 0 } // 自由
@@ -196,13 +198,9 @@ function ratio(e: MouseEvent) {
     initStyle.value.top = lockCurrent.top + lockCurrent.height - initStyle.value.height
 
 }
-// ---------------------------------------------------------------缩放end
+// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<缩放end
 
-// 坐标计算 -------------------------------------------------------
-// 当开始拖动或者缩放的时候 我们会在图形的四个顶点展示坐标
-// 这里我们需要计算出四个顶点的坐标
-// 但是我们不需要每次都计算，只有在拖动或者缩放的时候才需要计算
-// 所以我们可以把计算的逻辑放到一个函数里面，然后在拖动或者缩放的时候调用
+// 拖拽和缩放的坐标计算 （旋转的需要单独写） >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 const coordinate = ref<Coordinate>()
 function calculateCoordinate() {
   // 计算出四个顶点的坐标 需考虑旋转
@@ -213,18 +211,10 @@ function calculateCoordinate() {
   const lb = { x: left, y: top + height}
   return coordinate.value = { lt, rt, rb, lb }
 }
-// -------------------------------------------------------------坐标计算end
-const keyupHandler = (e: KeyboardEvent) => {
-  mode = e.key === 'Shift' ? 'normal' : 'ratio'
-}
-onMounted(() => {
-  document.addEventListener('keyup', keyupHandler)
-})
-onUnmounted(() => {
-  document.removeEventListener('keyup', keyupHandler)
-})
+// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<坐标计算end
 
-// 旋转计算 --------------------------------------------------------------------------
+
+// 旋转计算 >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 const rotateLock = ref(false)
 function rotateHanlder(e: MouseEvent) {
   e.stopPropagation()
@@ -287,7 +277,7 @@ function mouseupRotateHandler() {
   document.removeEventListener('mousemove', mousemoveRotateHandler)
   document.removeEventListener('mouseup', mouseupRotateHandler)
 }
-// ------------------------------------------------------------旋转计算end
+// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<旋转计算end
 
 function reset(e: MouseEvent) {
   e.preventDefault()
@@ -297,6 +287,17 @@ function reset(e: MouseEvent) {
   scaleLock.value = false
   rotateLock.value = false
 }
+
+const keyupHandler = (e: KeyboardEvent) => {
+  mode = e.key === 'Shift' ? 'normal' : 'ratio'
+}
+onMounted(() => {
+  document.addEventListener('keyup', keyupHandler)
+})
+onUnmounted(() => {
+  document.removeEventListener('keyup', keyupHandler)
+})
+
 
 // expose ------------------------------------------------------
 function setMode(m: 'normal' | 'ratio') {
