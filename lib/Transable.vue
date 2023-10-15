@@ -119,7 +119,6 @@ function mouseupTransHandler() {
   scaleLock.value = false
   document.removeEventListener('mousemove', mousemoveTransHandler)
   document.removeEventListener('mouseup', mouseupTransHandler)
-
 }
 // 自由 ------------------------------------------------
 function normal(e: MouseEvent) {
