@@ -1,6 +1,6 @@
 import { Point } from './types'
 
-export function getCenterPoint(selector = '.__transable__') {
+export function getCenterPoint(selector: string) {
   const transable = document.querySelector(selector) as HTMLElement
   const rect= transable.getBoundingClientRect()
   const coord = {
@@ -23,6 +23,11 @@ export function rotatePoint(currentPoint: Point, centerPoint: Point, angle: numb
   const x = dx * Math.cos(radian) - dy * Math.sin(radian) + centerPoint.x
   const y = dx * Math.sin(radian) + dy * Math.cos(radian) + centerPoint.y
   return { x, y }
+}
+
+export function generateClassName() {
+  const random = Math.random().toString(36).slice(2, 8) + Date.now().toString(36)
+  return `vuetransable-${random}`
 }
 
 

@@ -4,9 +4,10 @@ import { computed, onMounted, onUnmounted, ref } from 'vue'
 import { Props } from './props.d'
 import type { Point, Coordinate, Orientation } from './types'
 import { ratioOrientation, orientation } from './types'
-import { getCenterPoint, rotatePoint } from './utils'
+import { getCenterPoint, rotatePoint, generateClassName } from './utils'
 
 const props = defineProps(Props)
+const className = generateClassName()
 
 const initStyle = ref({
   width: props.width,
@@ -96,7 +97,7 @@ function mousedownTransHandler(e: MouseEvent, item: Orientation) {
   document.addEventListener('mousemove', mousemoveTransHandler)
   document.addEventListener('mouseup', mouseupTransHandler)
   // 1.根据当前点击的点，计算出其关于中心点对称的点，称为staticPoint
-  centerPoint = getCenterPoint()
+  centerPoint = getCenterPoint(`.${className}`)
   staticPoint = { x: centerPoint.x * 2 - e.clientX, y: centerPoint.y * 2 - e.clientY }
   mousePoint = { x: e.clientX, y: e.clientY }
 }
@@ -169,7 +170,7 @@ function rotateHanlder(e: MouseEvent) {
 
   const { clientX, clientY } = e
   rotateStart = { x: clientX, y: clientY }
-  centerPoint = getCenterPoint()
+  centerPoint = getCenterPoint(`.${className}`)
 }
 function mousemoveRotateHandler(e: MouseEvent) {
   if (!rotateLock)
@@ -232,6 +233,7 @@ defineExpose({
     :class="{
       'selected': selected,
       'transable-wrapper': selected,
+      [className]: true,
     }" 
     :style="scaleableStyle" 
     @click="clickHanlder" 
