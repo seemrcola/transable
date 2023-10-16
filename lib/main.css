@@ -30,8 +30,8 @@
   align-items: center;
   font-size: 1.2rem;
   z-index: var(--max-z-index);
-  color: skyblue;
   cursor: pointer;
+  border-radius: 50%;
 }
 
 .t {
