@@ -132,11 +132,18 @@ function normal(before: Point) {
   }
   // 当移动上下左右点的时候
   if(['t', 'b', 'l', 'r'].includes(direction)) {
-    // if(direction === 't') {
-    //   const height = Math.abs(before.y - centerPoint.y) * 2
-    //   initStyle.value.height = height
-    //   initStyle.value.top = centerPoint.y - height / 2
-    // }
+    if(direction === 't' || direction === 'b') {
+      const height = Math.abs(before.y - centerPoint.y) * 2
+      initStyle.value.height = height
+      initStyle.value.top = centerPoint.y - height / 2
+      initStyle.value.left = centerPoint.x - initStyle.value.width / 2
+    }
+    if(direction === 'l' || direction === 'r') {
+      const width = Math.abs(before.x - centerPoint.x) * 2
+      initStyle.value.width = width
+      initStyle.value.left = centerPoint.x - width / 2
+      initStyle.value.top = centerPoint.y - initStyle.value.height / 2
+    }
   }
 }
 // 等比 因为等比可能会有其他不同的需求，单独拆出写，后面方便按需改

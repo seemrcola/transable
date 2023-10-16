@@ -24,3 +24,4 @@ export function rotatePoint(currentPoint: Point, centerPoint: Point, angle: numb
   const y = dx * Math.sin(radian) + dy * Math.cos(radian) + centerPoint.y
   return { x, y }
 }
+
