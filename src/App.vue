@@ -3,21 +3,21 @@ import { ref } from 'vue'
 import Tran from '../lib/Transable.vue'
 const trans = ref(null)
 
-function toggle() {
-  //@ts-ignore
-  const mode = trans.value?.getMode()
-  if (mode === 'normal')
-  //@ts-ignore
-    trans.value?.setMode('ratio')
-  else
-  //@ts-ignore
-    trans.value?.setMode('normal')
-}
+// function toggle() {
+//   //@ts-ignore
+//   const mode = trans.value?.getMode()
+//   if (mode === 'normal')
+//   //@ts-ignore
+//     trans.value?.setMode('ratio')
+//   else
+//   //@ts-ignore
+//     trans.value?.setMode('normal')
+// }
 
 </script>
 
 <template>
-  <div class="wrapper">
+  <div class="wrapper" >
     <!-- <DemoRotate :left="200" :top="200"></DemoRotate> -->
     <Tran ref="trans" :left="500" :top="500" class="tran">
       <div w-full h-full flex-center text-dark overflow-hidden>
@@ -25,7 +25,7 @@ function toggle() {
       </div>
     </Tran>
   </div>
-  <button @click="toggle" absolute top-10 left-10 p="x-4 y-3">click me toggle mode</button>
+  <!-- <button @click="toggle" absolute top-10 left-10 p="x-4 y-3">click me toggle mode</button> -->
 </template>
 
 <style>

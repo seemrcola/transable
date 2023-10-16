@@ -25,3 +25,4 @@ export function rotatePoint(currentPoint: Point, centerPoint: Point, angle: numb
   return { x, y }
 }
 
+

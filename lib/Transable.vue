@@ -130,15 +130,19 @@ function normal(before: Point) {
     initStyle.value.left = centerPoint.x - width / 2
     initStyle.value.top = centerPoint.y - height / 2
   }
-  // 当移动上下左右点的时候
+  // fixme: 当移动上下左右点的时候
+  // 移动四个点的时候，只有一个方向会变化，所以只需要计算出变化的方向即可
+  // 同时移动四个点的时候，鼠标可能会偏移，导致按住拖拽t和b的时候，对l和r也会有影响
   if(['t', 'b', 'l', 'r'].includes(direction)) {
     if(direction === 't' || direction === 'b') {
+      // 这个情况下，width不变，height变化
       const height = Math.abs(before.y - centerPoint.y) * 2
       initStyle.value.height = height
       initStyle.value.top = centerPoint.y - height / 2
       initStyle.value.left = centerPoint.x - initStyle.value.width / 2
     }
     if(direction === 'l' || direction === 'r') {
+      // 这个情况下，height不变，width变化
       const width = Math.abs(before.x - centerPoint.x) * 2
       initStyle.value.width = width
       initStyle.value.left = centerPoint.x - width / 2
@@ -148,7 +152,7 @@ function normal(before: Point) {
 }
 // 等比 因为等比可能会有其他不同的需求，单独拆出写，后面方便按需改
 function ratio(before: Point) {
-  console.log('ratio')
+  console.log(before)
 }
 /*****************************缩放end***************************/
 
