@@ -2,14 +2,15 @@
 // 拖动和缩放的start坐标实际上可以共用，因为每次操作的时候，只会有一个生效，但是为了方便理解，还是分开写
 import { computed, onMounted, onUnmounted, ref } from 'vue'
 import { Props } from './props.d'
-import type { Point, Coordinate, Orientation } from './types'
+import type { Point, Coordinate, Orientation, Style } from './types'
 import { ratioOrientation, orientation } from './types'
 import { getCenterPoint, rotatePoint, generateClassName } from './utils'
+import { rafDebounce } from './raf'
 
 const props = defineProps(Props)
 const className = generateClassName()
 
-const initStyle = ref({
+const initStyle = ref<Style>({
   width: props.width,
   height: props.height,
   left: props.left,
@@ -50,10 +51,11 @@ document.addEventListener('click', () => {
 })
 
 /**************************拖动*****************************/
+// 拖动的时候会出现连续一个渲染周期内连续多次的mousemove事件，实际上可以处理成只有一个
 const moveLock = ref(false)
 const dragStart = { x: 0, y: 0 }
 const delta = { x: 0, y: 0 }
-
+const dragMouseMoveQueue: any[] = []
 function mousedownHandler(e: MouseEvent) {
   selected.value = true
   moveLock.value = true
@@ -66,18 +68,21 @@ function mousedownHandler(e: MouseEvent) {
 function mousemoveHandler(e: MouseEvent) {
   if (!moveLock.value)
     return
-  const { clientX, clientY } = e
-  delta.x = clientX - dragStart.x
-  delta.y = clientY - dragStart.y
-  dragStart.x = clientX
-  dragStart.y = clientY
-
-  // 通过delta.x和delta.y来改变组件的left和top
-  initStyle.value.left += delta.x
-  initStyle.value.top += delta.y
-
-  // 坐标计算
-  calculateCoordinate()
+  const task = () => {
+    const { clientX, clientY } = e
+    delta.x = clientX - dragStart.x
+    delta.y = clientY - dragStart.y
+    dragStart.x = clientX
+    dragStart.y = clientY
+    // 通过delta.x和delta.y来改变组件的left和top
+    initStyle.value.left += delta.x
+    initStyle.value.top += delta.y
+    // 坐标计算
+    calculateCoordinate()
+  }
+  // 为了防止一些不必要的计算，我们可以将连续的mousemove事件合并成一个
+  // 通过一个队列来存储mousemove事件，然后在下一个渲染周期内，只取最后一个事件来处理
+  rafDebounce(task, dragMouseMoveQueue)
 }
 function mouseupHandler() {
   moveLock.value = false
@@ -91,6 +96,7 @@ const scaleLock = ref(false)
 let staticPoint: Point = { x: 0, y: 0 }
 let mousePoint: Point = { x: 0, y: 0 }
 let direction: Orientation = 'lt'
+const scaleMouseQueue: any[] = []
 function mousedownTransHandler(e: MouseEvent, item: Orientation) {
   scaleLock.value = true
   direction = item
@@ -98,22 +104,26 @@ function mousedownTransHandler(e: MouseEvent, item: Orientation) {
   document.addEventListener('mouseup', mouseupTransHandler)
   // 1.根据当前点击的点，计算出其关于中心点对称的点，称为staticPoint
   centerPoint = getCenterPoint(`.${className}`)
+  // centerPoint = getCenterPoint2(initStyle.value)
   staticPoint = { x: centerPoint.x * 2 - e.clientX, y: centerPoint.y * 2 - e.clientY }
   mousePoint = { x: e.clientX, y: e.clientY }
 }
 function mousemoveTransHandler(e: MouseEvent) {
   if (!scaleLock.value)
     return
-  // 2. 点击组件某个点进行拉伸时，通过当前鼠标实时坐标和对称点计算出新的组件中心点：
-  centerPoint = { x: (e.clientX + staticPoint.x) / 2, y: (e.clientY + staticPoint.y) / 2 }
-  mousePoint = { x: e.clientX, y: e.clientY }
-  // 3. 由于组件可能处于旋转状态，所以我们的缩放应该是去计算组件未旋转时的情况，然后transform: rotate(rotate)即可
-  // 计算出未旋转时的坐标
-  const before = rotatePoint(mousePoint, centerPoint, -initStyle.value.rotate)
-  // 算出未旋转时的坐标后，我们就可以计算出组件的宽高了
-  mode === 'normal' ? normal(before) : ratio(before)
+  const task = () => {
+    // 2. 点击组件某个点进行拉伸时，通过当前鼠标实时坐标和对称点计算出新的组件中心点：
+    centerPoint = { x: (e.clientX + staticPoint.x) / 2, y: (e.clientY + staticPoint.y) / 2 }
+    mousePoint = { x: e.clientX, y: e.clientY }
+    // 3. 由于组件可能处于旋转状态，所以我们的缩放应该是去计算组件未旋转时的情况，然后transform: rotate(rotate)即可
+    // 计算出未旋转时的坐标
+    const before = rotatePoint(mousePoint, centerPoint, -initStyle.value.rotate)
+    // 算出未旋转时的坐标后，我们就可以计算出组件的宽高了
+    mode === 'normal' ? normal(before) : ratio(before)
 
-  calculateCoordinate()
+    calculateCoordinate()
+  }
+  rafDebounce(task, scaleMouseQueue)
 }
 function mouseupTransHandler() {
   scaleLock.value = false
@@ -161,7 +171,7 @@ function ratio(before: Point) {
 const rotateLock = ref(false)
 let centerPoint = { x: 0, y: 0 }
 let rotateStart = { x: 0, y: 0 }
-
+const rotateMouseQueue:any[] = []
 function rotateHanlder(e: MouseEvent) {
   e.stopPropagation()
   rotateLock.value = true
@@ -175,19 +185,23 @@ function rotateHanlder(e: MouseEvent) {
 function mousemoveRotateHandler(e: MouseEvent) {
   if (!rotateLock)
     return
-  const { clientX, clientY } = e
+  const task = () => {
+    const { clientX, clientY } = e
 
-  // 计算出旋转角度 deltatheta = theta after - theta before
-  const rotateAfter = Math.atan2(
-    clientY - centerPoint.y, 
-    clientX - centerPoint.x) * (180 / Math.PI)
-  const rotateBefore = Math.atan2(
-    rotateStart.y - centerPoint.y, 
-    rotateStart.x - centerPoint.x) * (180 / Math.PI)
-  const deltaTheta = rotateAfter - rotateBefore
+    // 计算出旋转角度 deltatheta = theta after - theta before
+    const rotateAfter = Math.atan2(
+      clientY - centerPoint.y, 
+      clientX - centerPoint.x) * (180 / Math.PI)
+    const rotateBefore = Math.atan2(
+      rotateStart.y - centerPoint.y, 
+      rotateStart.x - centerPoint.x) * (180 / Math.PI)
+    const deltaTheta = rotateAfter - rotateBefore
 
-  initStyle.value.rotate += deltaTheta
-  rotateStart = { x: clientX, y: clientY }
+    initStyle.value.rotate += deltaTheta
+    rotateStart = { x: clientX, y: clientY }
+  }
+  
+  rafDebounce(task, rotateMouseQueue)
 }
 function mouseupRotateHandler() {
   rotateLock.value = false

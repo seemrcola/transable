@@ -1,13 +1,41 @@
-import { Point } from './types'
+import { Point, Style } from './types'
 
+/**
+ * @param selector 
+ * @returns
+ * @description  
+ * 获取元素的中心点坐标
+ * https://developer.mozilla.org/zh-CN/docs/Web/API/Element/getBoundingClientRect
+ * getBoundingClientRect获取到的是矩形的外接矩形的left、top、right、bottom、width、height
+ * 很容易证明外接矩形的中心点坐标就是元素的中心点坐标
+ * 
+ * 缺点就是getBoundingClientRect会导致页面重排，性能不好
+ */
 export function getCenterPoint(selector: string) {
   const transable = document.querySelector(selector) as HTMLElement
   const rect= transable.getBoundingClientRect()
+  console.log(rect, 'rect')
   const coord = {
     x: rect.left + rect.width / 2,
     y: rect.top + rect.height / 2,
   }
   return coord
+}
+
+/**
+ * 矩形中点坐标公式
+ * @param rect
+ * @returns {x: number, y: number}
+ * @description
+ * 根据矩形的left、top、width、height计算矩形的中心点坐标
+ * 
+ * 前提是有类似的数据支持 getBoundingClientRect是无条件的
+ */
+export function getCenterPoint2(rect: Style) {
+  return {
+    x: rect.left + rect.width / 2,
+    y: rect.top + rect.height / 2,
+  }
 }
 
 // 矩阵旋转公式：x' = x * cosθ - y * sinθ, y' = x * sinθ + y * cosθ
