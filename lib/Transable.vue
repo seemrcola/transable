@@ -123,21 +123,27 @@ function mousemoveTransHandler(e: MouseEvent) {
     }
     // 当移动四条边的时候
     if(['t', 'b', 'l', 'r'].includes(direction)) {
-      // t和b的时候，centerPoint的x不变，y变化
-      // l和r的时候，centerPoint的y不变，x变化
-      // 注意 要考虑旋转
-      if(direction === 't' || direction === 'b') {
-        centerPoint = { x: centerPoint.x, y: (e.clientY + staticPoint.y) / 2 }
-        mousePoint = { x: e.clientX, y: e.clientY }
-        const before = rotatePoint(mousePoint, centerPoint, -initStyle.value.rotate)
-        edgeX(before)
-      }
-      if(direction === 'l' || direction === 'r') {
-        centerPoint = { x: (e.clientX + staticPoint.x) / 2, y: centerPoint.y }
-        mousePoint = { x: e.clientX, y: e.clientY }
-        const before = rotatePoint(mousePoint, centerPoint, -initStyle.value.rotate)
-        edgeY(before)
-      }
+      // 通过staticPoint和centerPoint计算出直线的方程 fx = (x: number) => k * x + b
+      const k = (staticPoint.y - centerPoint.y) / (staticPoint.x - centerPoint.x)
+      const b = staticPoint.y - k * staticPoint.x
+      const fx = (x: number) => k * x + b
+      // 与其垂直的直线的为 fx2 = (x: number) => -1 / k * x + b2
+      // 无论如何移动我们的currntPoint，保证在fx2上, 想办法求出b2
+      mousePoint = { x: e.clientX, y: e.clientY }
+      // 把点带入fx2 即 mousePoint.y = -1 / k * mousePoint.x + b2
+      const b2 = mousePoint.y + 1 / k * mousePoint.x
+      // 即 fx2 可得
+      const fx2 = (x: number) => -1 / k * x + b2
+      // 通过fx和fx2的交点，即可得到真正需要的 【mousePoint】
+      const x = (b2 - b) / (k + 1 / k)
+      const y = fx(x)
+      // 算出centerPoint 
+      centerPoint = { x: (x + staticPoint.x) / 2, y: (y + staticPoint.y) / 2 }
+      // 根据矩形旋转的角度，计算出真正的before
+      const before = rotatePoint({ x, y }, centerPoint, -initStyle.value.rotate)
+
+      if(direction === 't' || direction === 'b') edgeX(before)
+      if(direction === 'l' || direction === 'r') edgeY(before)
     }
     calculateCoordinate()
   }
