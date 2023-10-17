@@ -113,14 +113,32 @@ function mousemoveTransHandler(e: MouseEvent) {
     return
   const task = () => {
     // 2. 点击组件某个点进行拉伸时，通过当前鼠标实时坐标和对称点计算出新的组件中心点：
-    centerPoint = { x: (e.clientX + staticPoint.x) / 2, y: (e.clientY + staticPoint.y) / 2 }
-    mousePoint = { x: e.clientX, y: e.clientY }
     // 3. 由于组件可能处于旋转状态，所以我们的缩放应该是去计算组件未旋转时的情况，然后transform: rotate(rotate)即可
-    // 计算出未旋转时的坐标
-    const before = rotatePoint(mousePoint, centerPoint, -initStyle.value.rotate)
-    // 算出未旋转时的坐标后，我们就可以计算出组件的宽高了
-    mode === 'normal' ? normal(before) : ratio(before)
-
+    // 当移动四个角的时候
+    if(['lt', 'lb', 'rt', 'rb'].includes(direction)) {
+      centerPoint = { x: (e.clientX + staticPoint.x) / 2, y: (e.clientY + staticPoint.y) / 2 }
+      mousePoint = { x: e.clientX, y: e.clientY }
+      const before = rotatePoint(mousePoint, centerPoint, -initStyle.value.rotate)
+      vertex(before) 
+    }
+    // 当移动四条边的时候
+    if(['t', 'b', 'l', 'r'].includes(direction)) {
+      // t和b的时候，centerPoint的x不变，y变化
+      // l和r的时候，centerPoint的y不变，x变化
+      // 注意 要考虑旋转
+      if(direction === 't' || direction === 'b') {
+        centerPoint = { x: centerPoint.x, y: (e.clientY + staticPoint.y) / 2 }
+        mousePoint = { x: e.clientX, y: e.clientY }
+        const before = rotatePoint(mousePoint, centerPoint, -initStyle.value.rotate)
+        edgeX(before)
+      }
+      if(direction === 'l' || direction === 'r') {
+        centerPoint = { x: (e.clientX + staticPoint.x) / 2, y: centerPoint.y }
+        mousePoint = { x: e.clientX, y: e.clientY }
+        const before = rotatePoint(mousePoint, centerPoint, -initStyle.value.rotate)
+        edgeY(before)
+      }
+    }
     calculateCoordinate()
   }
   rafDebounce(task, scaleMouseQueue)
@@ -130,40 +148,30 @@ function mouseupTransHandler() {
   document.removeEventListener('mousemove', mousemoveTransHandler)
   document.removeEventListener('mouseup', mouseupTransHandler)
 }
-// 自由 ------------------------------------------------
-function normal(before: Point) {
+// 顶点 ------------------------------------------------
+function vertex(before: Point) {
   // 当移动四个角的时候
-  if(['lt', 'lb', 'rt', 'rb'].includes(direction)) {
-    const width = Math.abs(before.x - centerPoint.x) * 2
-    const height = Math.abs(before.y - centerPoint.y) * 2
-    initStyle.value.width = width
-    initStyle.value.height = height
-    initStyle.value.left = centerPoint.x - width / 2
-    initStyle.value.top = centerPoint.y - height / 2
-  }
-  // fixme: 当移动上下左右点的时候
-  // 移动四个点的时候，只有一个方向会变化，所以只需要计算出变化的方向即可
-  // 同时移动四个点的时候，鼠标可能会偏移，导致按住拖拽t和b的时候，对l和r也会有影响
-  if(['t', 'b', 'l', 'r'].includes(direction)) {
-    if(direction === 't' || direction === 'b') {
-      // 这个情况下，width不变，height变化
-      const height = Math.abs(before.y - centerPoint.y) * 2
-      initStyle.value.height = height
-      initStyle.value.top = centerPoint.y - height / 2
-      initStyle.value.left = centerPoint.x - initStyle.value.width / 2
-    }
-    if(direction === 'l' || direction === 'r') {
-      // 这个情况下，height不变，width变化
-      const width = Math.abs(before.x - centerPoint.x) * 2
-      initStyle.value.width = width
-      initStyle.value.left = centerPoint.x - width / 2
-      initStyle.value.top = centerPoint.y - initStyle.value.height / 2
-    }
-  }
+  const width = Math.abs(before.x - centerPoint.x) * 2
+  const height = Math.abs(before.y - centerPoint.y) * 2
+  initStyle.value.width = width
+  initStyle.value.height = height
+  initStyle.value.left = centerPoint.x - width / 2
+  initStyle.value.top = centerPoint.y - height / 2
 }
-// 等比 因为等比可能会有其他不同的需求，单独拆出写，后面方便按需改
-function ratio(before: Point) {
-  console.log(before)
+// 边 --------------------------------------------------
+function edgeX(before: Point) {
+  // 这个情况下，width不变，height变化
+  const height = Math.abs(before.y - centerPoint.y) * 2
+  initStyle.value.height = height
+  initStyle.value.top = centerPoint.y - height / 2
+  initStyle.value.left = centerPoint.x - initStyle.value.width / 2
+}
+function edgeY(before: Point) {
+  // 这个情况下，height不变，width变化
+  const width = Math.abs(before.x - centerPoint.x) * 2
+  initStyle.value.width = width
+  initStyle.value.left = centerPoint.x - width / 2
+  initStyle.value.top = centerPoint.y - initStyle.value.height / 2
 }
 /*****************************缩放end***************************/
 
