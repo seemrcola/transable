@@ -1,7 +1,7 @@
 <script setup lang='ts'>
 // 拖动和缩放的start坐标实际上可以共用，因为每次操作的时候，只会有一个生效，但是为了方便理解，还是分开写
 import { computed, onMounted, onUnmounted, ref } from 'vue'
-import { Props } from './props.d'
+import { Props } from './props'
 import type { Point, Coordinate, Orientation, Style } from './types'
 import { ratioOrientation, orientation } from './types'
 import { getCenterPoint, rotatePoint, generateClassName } from './utils'
@@ -295,3 +295,4 @@ defineExpose({
 <style scoped>
 @import './main.css';
 </style>
+./props

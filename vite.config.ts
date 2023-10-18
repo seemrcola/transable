@@ -1,23 +1,9 @@
 import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
-import Unocss from 'unocss/vite'
-import fs from 'fs'
-import path from 'path'
-import VueDevTool from 'vite-plugin-vue-devtools'
 
 // https://vitejs.dev/config/
 export default defineConfig({
-  plugins: [
-    VueDevTool(),
-    vue(),
-    Unocss(),
-    {
-      name: 'vite-plugin-del',
-      closeBundle() {
-        console.log(fs, path)
-      },
-    },
-  ],
+  plugins: [vue()],
   build: {
     emptyOutDir: false,
     lib: {
@@ -25,8 +11,8 @@ export default defineConfig({
       name: '@seemr/vuetransable',
       formats: ['cjs', 'es'],
       fileName: format => format === 'es' 
-        ? 'es/vuetransable.mjs' 
-        : 'lib/vuetransable.cjs',
+        ? 'es/index.mjs' 
+        : 'lib/index.cjs',
     },
     rollupOptions: {
       external: ['vue'], // 将 'vue' 设为外部依赖

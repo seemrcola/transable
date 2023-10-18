@@ -23,7 +23,7 @@ export const Props = {
   },
   showCoords: {
     type: Boolean,
-    default: true,
+    default: false,
   },
 } as const
 
