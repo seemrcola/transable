@@ -128,7 +128,7 @@ function mousemoveTransHandler(e: MouseEvent) {
       const b = staticPoint.y - k * staticPoint.x
       const fx = (x: number) => k * x + b
       // 与其垂直的直线的为 fx2 = (x: number) => -1 / k * x + b2
-      // 无论如何移动我们的currntPoint，保证在fx2上, 想办法求出b2
+      // 容易知道 无论如何移动我们的mousePoint 该点必定在fx2上 fx2还差一个b2没有被求出
       mousePoint = { x: e.clientX, y: e.clientY }
       // 把点带入fx2 即 mousePoint.y = -1 / k * mousePoint.x + b2
       const b2 = mousePoint.y + 1 / k * mousePoint.x
@@ -140,7 +140,7 @@ function mousemoveTransHandler(e: MouseEvent) {
       const y = fx(x)
       // 算出centerPoint 
       centerPoint = { x: (x + staticPoint.x) / 2, y: (y + staticPoint.y) / 2 }
-      // 根据矩形旋转的角度，计算出真正的before
+      // 根据矩形旋转的角度，计算旋转前的点before
       const before = rotatePoint({ x, y }, centerPoint, -initStyle.value.rotate)
 
       if(direction === 't' || direction === 'b') edgeX(before)
