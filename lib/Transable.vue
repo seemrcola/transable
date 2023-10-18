@@ -133,6 +133,7 @@ function mousemoveTransHandler(e: MouseEvent) {
       // 把点带入fx2 即 mousePoint.y = -1 / k * mousePoint.x + b2
       const b2 = mousePoint.y + 1 / k * mousePoint.x
       // 即 fx2 可得
+      // @ts-ignore
       const fx2 = (x: number) => -1 / k * x + b2
       // 通过fx和fx2的交点，即可得到真正需要的 【mousePoint】
       const x = (b2 - b) / (k + 1 / k)
@@ -270,7 +271,7 @@ defineExpose({
   >
     <slot />
     <!-- 旋转图标 -->
-    <div v-if="selected" class="rotate bg-blue-400" @mousedown="rotateHanlder">↻</div>
+    <div v-if="selected" class="rotate bg-blue-400 select-none" @mousedown="rotateHanlder">↻</div>
     <!-- 八个方向的点 -->
     <template v-for="(item) of orientation" :key="item">
       <div 
@@ -280,7 +281,11 @@ defineExpose({
     </template>
     <!-- 四个角的坐标 -->
     <template v-for="(item) of ratioOrientation" :key="item">
-      <div v-if="(moveLock || scaleLock || rotateLock) && props.showCoords" :class='[`ratio-${item}`, item]'>
+      <div 
+        v-if="(moveLock || scaleLock || rotateLock) && props.showCoords" 
+        :class='[`ratio-${item}`, item]'
+        class="select-none"
+      >
         [{{ ~~(coordinate?.[item].x || 0) }}, {{ ~~(coordinate?.[item].y || 0) }}]
       </div>
     </template>

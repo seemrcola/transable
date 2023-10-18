@@ -119,3 +119,7 @@
   --un-bg-opacity: 1;
   background-color: rgba(96, 165, 250, var(--un-bg-opacity));
 }
+
+.select-none {
+  user-select: none;
+}
