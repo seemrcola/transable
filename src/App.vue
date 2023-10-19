@@ -1,6 +1,7 @@
 <script setup lang='ts'>
-import { Transable } from '../dist/es/index.mjs';
-import '../dist/style.css';
+// import { Transable } from '../dist/es/index.mjs';
+// import '../dist/style.css';
+import Transable from '../lib/Transable.vue'
 </script>
 
 <template>

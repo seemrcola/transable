@@ -58,4 +58,69 @@ export function generateClassName() {
   return `vuetransable-${random}`
 }
 
+/**
+ * @param slope 
+ * @returns 
+ * description
+ * 根据斜率获取垂直的斜率
+ */
+export function getVerticalSlope(slope: number) {
+  return -1 / slope
+}
 
+/**
+ * @param point1 
+ * @param point2 
+ * @returns 
+ * description
+ * 根据两点坐标获取直线的斜率和截距
+ */
+export function getSlopeAndIntercept(point1: Point, point2: Point) {
+  const slope = (point2.y - point1.y) / (point2.x - point1.x)
+  const intercept = point1.y - slope * point1.x
+  return { 
+    slope, 
+    intercept, 
+    fn: (x: number) => slope * x + intercept 
+  }
+}
+
+/**
+ * @param point 
+ * @param slope 
+ * @param intercept 
+ * @returns 
+ * description
+ * 根据已知的斜率或者截距，以及已知的点的坐标，求斜率或者截距
+ */
+export function getPointBySlopeOrIntercept(point: Point, opts: {
+  slope?: number, 
+  intercept?: number
+} = {}) {
+  const { slope, intercept } = opts
+  if(slope) {
+    const intercept = point.y - slope * point.x
+    return { 
+      slope, intercept, 
+      fn: (x: number) => slope * x + intercept 
+    }
+  } 
+  else if(intercept) {
+    const slope = (point.y - intercept) / point.x
+    return { 
+      slope, intercept, 
+      fn: (x: number) => slope * x + intercept 
+    }
+  }
+  else 
+    throw new Error('slope or intercept must be provided')
+}
+
+// 求出两个一次函数的交点
+// y = k1 * x + b1
+// y = k2 * x + b2
+export function getIntersectionPoint([k1, b1]:[number, number], [k2, b2]:[number,number]) {
+  const x = (b2 - b1) / (k1 - k2)
+  const y = k1 * x + b1
+  return { x, y }
+}

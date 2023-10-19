@@ -4,7 +4,10 @@ import { computed, onMounted, onUnmounted, ref } from 'vue'
 import { Props } from './props'
 import type { Point, Coordinate, Orientation, Style } from './types'
 import { ratioOrientation, orientation } from './types'
-import { getCenterPoint, rotatePoint, generateClassName } from './utils'
+import { 
+  getCenterPoint, rotatePoint, generateClassName, 
+  getPointBySlopeOrIntercept, getVerticalSlope, getSlopeAndIntercept, getIntersectionPoint
+} from './utils'
 import { rafDebounce } from './raf'
 
 const props = defineProps(Props)
@@ -123,21 +126,18 @@ function mousemoveTransHandler(e: MouseEvent) {
     }
     // 当移动四条边的时候
     if(['t', 'b', 'l', 'r'].includes(direction)) {
-      // 通过staticPoint和centerPoint计算出直线的方程 fx = (x: number) => k * x + b
-      const k = (staticPoint.y - centerPoint.y) / (staticPoint.x - centerPoint.x)
-      const b = staticPoint.y - k * staticPoint.x
-      const fx = (x: number) => k * x + b
-      // 与其垂直的直线的为 fx2 = (x: number) => -1 / k * x + b2
-      // 容易知道 无论如何移动我们的mousePoint 该点必定在fx2上 fx2还差一个b2没有被求出
+      // 通过staticPoint和centerPoint计算出直线的方程 
+      // fx = (x: number) => k * x + b
+      const { slope:k, intercept:b } = getSlopeAndIntercept(staticPoint, centerPoint)
+      // 容易知道 无论如何移动我们的mousePoint 该点必定在fx的过staticPoint垂线(记为fx2)上 
+      // 拿到fx2的斜率
+      const k2 = getVerticalSlope(k)
+      // 拿到过fx2的一个点mousePointss
       mousePoint = { x: e.clientX, y: e.clientY }
-      // 把点带入fx2 即 mousePoint.y = -1 / k * mousePoint.x + b2
-      const b2 = mousePoint.y + 1 / k * mousePoint.x
-      // 即 fx2 可得
-      // @ts-ignore
-      const fx2 = (x: number) => -1 / k * x + b2
-      // 通过fx和fx2的交点，即可得到真正需要的 【mousePoint】
-      const x = (b2 - b) / (k + 1 / k)
-      const y = fx(x)
+      // 求出fx2的方程 fx2 = (x: number) => k2 * x + b2
+      const { intercept:b2 } = getPointBySlopeOrIntercept(mousePoint,  { slope: k2 })
+      // 求出fx2和fx的交点
+      const { x, y } = getIntersectionPoint([k, b], [k2, b2])
       // 算出centerPoint 
       centerPoint = { x: (x + staticPoint.x) / 2, y: (y + staticPoint.y) / 2 }
       // 根据矩形旋转的角度，计算旋转前的点before
