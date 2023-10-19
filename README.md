@@ -13,14 +13,14 @@ pnpm install vue-transable
 import { ref } from 'vue'
 import { Transable } from 'vue-transable';
 import 'vue-transable/dist/style.css';
-const trans = ref(null)
+const instance = ref(null)
 </script>
 
 <template>
   <div class="wrapper" >
     <Transable ref="instance" :left="500" :top="500" class="tran">
       <div class="slot">
-        <img src="../public/test.png" style="object-fit:fill;">
+        <img src="path.jpg">
       </div>
     </Transable>
   </div>
@@ -29,19 +29,24 @@ const trans = ref(null)
 组件的props如下：
 ```ts
 export const Props = {
-  width: number // default: 100,
-  height: number // default: 100,
-  left: number // default: 0,
-  top: number // default: 0,
-  rotate: number // default: 0, 
+  width: number       // default: 100,
+  height: number      // default: 100,
+  left: number        // default: 0,
+  top: number         // default: 0,
+  rotate: number      // default: 0, 
   showCoords: boolean // default: false, 是否显示坐标
 }
 ```
 组件内部事件如下：
 ```ts
-const instance = ref(null)
-instance.getCoordinate // 获取组件的坐标
+instance.getCoordinate() // 获取组件的坐标
+// { left: number, top: number, width: number, height: number, rotate: number }
 ```
 
-### todo 
-功能建造中......
+### 功能 
+- [x] 旋转
+- [x] 缩放
+- [x] 拖拽
+- [x] 坐标展示
+- [ ] 等比缩放  
+- [ ] 控制组件内元素缩放 `(scale(x, y))`
