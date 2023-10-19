@@ -6,7 +6,7 @@ import Transable from '../lib/Transable.vue'
 
 <template>
   <div class="wrapper" >
-    <Transable :left="500" :top="500" class="tran">
+    <Transable :left="500" :top="500" :show-coords="true" class="tran">
       <div class="slot">
         <img src="../imgs/test.png" style="object-fit:fill;">
       </div>

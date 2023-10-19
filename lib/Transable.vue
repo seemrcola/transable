@@ -12,6 +12,7 @@ import { rafDebounce } from './raf'
 
 const props = defineProps(Props)
 const className = generateClassName()
+// const RATIO = props.width / props.height
 
 const initStyle = ref<Style>({
   width: props.width,
@@ -235,9 +236,18 @@ function reset(e: MouseEvent) {
 }
 
 let mode = 'normal'
-const keyupHandler = (e: KeyboardEvent) =>  mode = e.key === 'Shift' ? 'normal' : 'ratio'
-onMounted(() => document.addEventListener('keyup', keyupHandler))
-onUnmounted(() => document.removeEventListener('keyup', keyupHandler))
+const keydownHandler = (e: KeyboardEvent) =>  mode = e.key === 'Shift' ? 'ratio' : 'normal'
+const keyupHandler = (e: KeyboardEvent) => {
+  if (e.key === 'Shift')  mode = 'normal'
+}
+onMounted(() => {
+  document.addEventListener('keydown', keydownHandler)
+  document.addEventListener('keyup', keyupHandler)
+})
+onUnmounted(() => {
+  document.removeEventListener('keydown', keydownHandler)
+  document.removeEventListener('keyup', keyupHandler)
+})
 
 // expose ------------------------------------------------------
 function setMode(m: 'normal' | 'ratio') {
