@@ -14,7 +14,6 @@ import { Point, Style } from './types'
 export function getCenterPoint(selector: string) {
   const transable = document.querySelector(selector) as HTMLElement
   const rect= transable.getBoundingClientRect()
-  console.log(rect, 'rect')
   const coord = {
     x: rect.left + rect.width / 2,
     y: rect.top + rect.height / 2,

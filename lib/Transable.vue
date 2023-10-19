@@ -119,11 +119,16 @@ function mousemoveTransHandler(e: MouseEvent) {
     // 2. 点击组件某个点进行拉伸时，通过当前鼠标实时坐标和对称点计算出新的组件中心点：
     // 3. 由于组件可能处于旋转状态，所以我们的缩放应该是去计算组件未旋转时的情况，然后transform: rotate(rotate)即可
     // 当移动四个角的时候
-    if(['lt', 'lb', 'rt', 'rb'].includes(direction)) {
+    if(['lt', 'lb', 'rt', 'rb'].includes(direction) && mode === 'normal') {
       centerPoint = { x: (e.clientX + staticPoint.x) / 2, y: (e.clientY + staticPoint.y) / 2 }
       mousePoint = { x: e.clientX, y: e.clientY }
       const before = rotatePoint(mousePoint, centerPoint, -initStyle.value.rotate)
       vertex(before) 
+    }
+    // 当移动四个角且按住shift的时候
+    if(['lt', 'lb', 'rt', 'rb'].includes(direction) && mode === 'ratio') {
+      // todo
+      console.warn('todo: 按住shift的时候，四个角的缩放')
     }
     // 当移动四条边的时候
     if(['t', 'b', 'l', 'r'].includes(direction)) {
@@ -305,4 +310,3 @@ defineExpose({
 <style scoped>
 @import './main.css';
 </style>
-./props
