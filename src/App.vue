@@ -1,16 +1,16 @@
 <script setup lang='ts'>
-// import { Transable } from '../dist/es/index.mjs';
+// import { VueTransable } from '../dist/es/index.mjs';
 // import '../dist/style.css';
-import Transable from '../lib/Transable.vue'
+import { VueTransable } from '../lib'
 </script>
 
 <template>
   <div class="wrapper" >
-    <Transable :left="500" :top="500" :show-coords="true" class="tran">
+    <VueTransable :left="500" :top="500" :show-coords="true" class="tran">
       <div class="slot">
         <img src="../imgs/test.png" style="object-fit:fill;">
       </div>
-    </Transable>
+    </VueTransable>
   </div>
 </template>
 

@@ -1,4 +1,4 @@
-import { Point, Style } from './types'
+import { Point } from './types'
 
 /**
  * @param selector 
@@ -26,14 +26,14 @@ export function getCenterPoint(selector: string) {
  * @param rect
  * @returns {x: number, y: number}
  * @description
- * 根据矩形的left、top、width、height计算矩形的中心点坐标
+ * 根据矩形的两个对角点坐标计算矩形的中心点坐标
  * 
- * 前提是有类似的数据支持 getBoundingClientRect是无条件的
+ * 前提是有类似的数据支持 而getBoundingClientRect是无条件的
  */
-export function getCenterPoint2(rect: Style) {
+export function getCenterPoint2(p1: Point, p2: Point) {
   return {
-    x: rect.left + rect.width / 2,
-    y: rect.top + rect.height / 2,
+    x: (p1.x + p2.x) / 2,
+    y: (p1.y + p2.y) / 2,
   }
 }
 
@@ -50,11 +50,6 @@ export function rotatePoint(currentPoint: Point, centerPoint: Point, angle: numb
   const x = dx * Math.cos(radian) - dy * Math.sin(radian) + centerPoint.x
   const y = dx * Math.sin(radian) + dy * Math.cos(radian) + centerPoint.y
   return { x, y }
-}
-
-export function generateClassName() {
-  const random = Math.random().toString(36).slice(2, 8) + Date.now().toString(36)
-  return `vuetransable-${random}`
 }
 
 /**
