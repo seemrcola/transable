@@ -1,3 +1,1 @@
-import { Transable } from './tranable';
-export { Transable };
-export * from './types'
+export * from './tranable'

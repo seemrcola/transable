@@ -6,9 +6,8 @@ import { VueTransable } from '../lib'
 
 <template>
   <div class="wrapper" >
-    <VueTransable :left="500" :top="500" :show-coords="true" class="tran">
+    <VueTransable class="tran" :x="100" :y="100" :width="100" :height="100">
       <div class="slot">
-        <img src="../imgs/test.png" style="object-fit:fill;">
       </div>
     </VueTransable>
   </div>
@@ -22,11 +21,13 @@ import { VueTransable } from '../lib'
   background-color: #000;
 }
 .tran {
-  background-color: bisque;
+  width: 100px;
+  height: 100px;
 }
 .slot {
   width: 100%;
   height: 100%;
   overflow: hidden;
+  border: 1px solid #fff;
 }
 </style>

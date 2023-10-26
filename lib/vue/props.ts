@@ -9,21 +9,13 @@ export const Props = {
     type: Number,
     default: 100,
   },
-  left: {
+  x: {
     type: Number,
     default: 0,
   },
-  top: {
+  y: {
     type: Number,
     default: 0,
-  },
-  rotate: {
-    type: Number,
-    default: 0,
-  },
-  showCoords: {
-    type: Boolean,
-    default: false,
   },
 } as const
 
