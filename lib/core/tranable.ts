@@ -1,5 +1,5 @@
 import type { Rect, MousePoint, Direction, ResizeTool } from './types';
-import { rotatePoint } from './utils';
+import { rotatePoint, getLineEquation, getCrossPoint } from './utils';
 
 export class Transable {
   public x: number;
@@ -11,6 +11,7 @@ export class Transable {
   #reszieTool: ResizeTool = {
     staticPoint: { x: 0, y: 0 },
     sideOrCorner: 'corner', // corner side
+    direction: 'lt',
   }
 
   constructor(rect: Rect) {
@@ -82,12 +83,13 @@ export class Transable {
       x: this.center.x * 2 - mousePoint.x,
       y: this.center.y * 2 - mousePoint.y,
     }
-    if (['lt', 'lb', 'rt', 'rb'].includes(direction)) {
+
+    this.#reszieTool.direction = direction;
+
+    if (['lt', 'lb', 'rt', 'rb'].includes(direction)) 
       this.#reszieTool.sideOrCorner = 'corner';
-    }
-    if (['t', 'b', 'l', 'r'].includes(direction)) {
+    if (['t', 'b', 'l', 'r'].includes(direction)) 
       this.#reszieTool.sideOrCorner = 'side';
-    }
   }
   /**
    * @param mouseStart 鼠标起始位置
@@ -99,7 +101,8 @@ export class Transable {
     const mode = this.#reszieTool.sideOrCorner;
     if (mode === 'corner')
       this.resizeCorner(mousePoint);
-    // todo mode = side
+    if(mode === 'side')
+      this.resizeSide(mousePoint)
   }
   /**
    * @param mousePoint 
@@ -119,5 +122,25 @@ export class Transable {
     this.height = Math.abs(before.y - dynamicCenter.y) * 2;
     this.x = dynamicCenter.x - this.width / 2;
     this.y = dynamicCenter.y - this.height / 2;
+  }
+  resizeSide(mousePoint: MousePoint) {
+    // 根据staticPoint拿到中心点 和 中心点拿到 fx centerPoint作为原点
+    const direction = this.#reszieTool.direction;
+    const staticPoint = this.#reszieTool.staticPoint;
+    const centerPoint = this.center;
+    const { k, b } = getLineEquation(staticPoint, centerPoint);                    // 根据两点计算出方程
+    const k2 = -1 / k;                                                             // 根据这个k算出垂直于这条线的k
+    const b2 = mousePoint.y - k2 * mousePoint.x;                                   // 根据mousePoint和k2算出直线方程
+    let {x, y} = getCrossPoint({k, b}, {k: k2, b: b2});                            // 算出两直线方程的交点
+    const currentCenterPoint = { x: (x+staticPoint.x)/2, y: (y+staticPoint.y)/2 }  // 更新centerPoint
+    const before = rotatePoint({x, y}, currentCenterPoint, -this.angle);           // 求出before点的坐标
+
+    if(['l', 'r'].includes(direction)) 
+      this.width = Math.abs(before.x - currentCenterPoint.x) * 2;
+    if(['t', 'b'].includes(direction)) 
+      this.height = Math.abs(before.y - currentCenterPoint.y) * 2;
+    
+    this.x = currentCenterPoint.x - this.width / 2;
+    this.y = currentCenterPoint.y - this.height / 2;
   }
 }

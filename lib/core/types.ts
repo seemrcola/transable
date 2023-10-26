@@ -8,6 +8,7 @@ export interface Rect {
 export interface ResizeTool {
   staticPoint: MousePoint;
   sideOrCorner: 'corner' | 'side';
+  direction: Direction;
 }
 
 export type MousePoint = { x: number; y: number; }

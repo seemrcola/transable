@@ -15,3 +15,22 @@ export function rotatePoint(currentPoint: MousePoint, centerPoint: MousePoint, a
   const y = dx * Math.sin(radian) + dy * Math.cos(radian) + centerPoint.y
   return { x, y }
 }
+
+// 根据两点计算出方程
+// y = kx + b
+// k = (y2 - y1) / (x2 - x1)
+// b = y1 - kx1
+export function getLineEquation(point1: MousePoint, point2: MousePoint) {
+  const k = (point2.y - point1.y) / (point2.x - point1.x)
+  const b = point1.y - k * point1.x
+  return { k, b }
+}
+
+// 根据两个直线方程计算出交点
+// x = (b2 - b1) / (k1 - k2)
+// y = k1 * x + b1
+export function getCrossPoint(line1: { k: number, b: number }, line2: { k: number, b: number }) {
+  const x = (line2.b - line1.b) / (line1.k - line2.k)
+  const y = line1.k * x + line1.b
+  return { x, y }
+}

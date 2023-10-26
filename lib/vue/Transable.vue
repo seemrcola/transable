@@ -17,6 +17,7 @@ const transable = new Transable({
 })
 
 const style = ref<any>()
+
 function genStyle() {
   const { x, y, width, height } = transable.getRect()
   style.value = {
@@ -123,6 +124,11 @@ function mouseupRotateHandler() {
   document.removeEventListener('mouseup', mouseupRotateHandler)
 }
 /***************************旋转计算end**************************/
+
+// expose -----------------------------------------------------
+defineExpose({
+  transable
+})
 </script>
 
 <template>
