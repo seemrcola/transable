@@ -58,8 +58,8 @@ function mousemoveMoveHandler(e: MouseEvent) {
     mouseEndMove = { x: e.clientX, y: e.clientY }
     transable.drag(mouseStartMove, mouseEndMove)
     mouseStartMove = mouseEndMove
+    genStyle()
   }
-  genStyle()
   rafDebounce(task, moveTaskQueue)
 }
 function mouseupMoveHandler() {
@@ -85,8 +85,8 @@ function mousemoveTransHandler(e: MouseEvent) {
   if(!startScale) return
   const task = () => {
     transable.resize({ x: e.clientX, y: e.clientY })
+    genStyle()
   }
-  genStyle()
   rafDebounce(task, transQueue)
 }
 function mouseupTransHandler() {
@@ -99,6 +99,7 @@ function mouseupTransHandler() {
 /*****************************旋转计算***************************/
 let mouseStartRatate = {x: 0, y: 0}
 let strartRotate = false
+let rotateTaskQueue: any[] = []
 function rotateHanlder(e: MouseEvent) {
   e.stopPropagation()
   strartRotate = true
@@ -108,10 +109,13 @@ function rotateHanlder(e: MouseEvent) {
 }
 function mousemoveRotateHandler(e: MouseEvent) {
   if(!strartRotate) return
-  const mouseEndRatate = { x: e.clientX, y: e.clientY }
-  transable.rotate(mouseStartRatate, mouseEndRatate)
-  genStyle()
-  mouseStartRatate = mouseEndRatate
+  const task = () => {
+    const mouseEndRatate = { x: e.clientX, y: e.clientY }
+    transable.rotate(mouseStartRatate, mouseEndRatate)
+    genStyle()
+    mouseStartRatate = mouseEndRatate
+  }
+  rafDebounce(task, rotateTaskQueue)
 }
 function mouseupRotateHandler() {
   strartRotate = false
