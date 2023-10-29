@@ -141,6 +141,7 @@ defineExpose({
     }" 
     :style="style"
     @mousedown="mousedownMoveHandler"
+    @contextmenu="($event) => $event.preventDefault()"
   >
     <slot />
     <!-- 旋转图标 -->

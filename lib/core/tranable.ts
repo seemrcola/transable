@@ -123,8 +123,12 @@ export class Transable {
     this.x = dynamicCenter.x - this.width / 2;
     this.y = dynamicCenter.y - this.height / 2;
   }
+  /**
+   * @param mousePoint 
+   * @description 缩放四条边
+   */
   resizeSide(mousePoint: MousePoint) {
-    // 根据staticPoint拿到中心点 和 中心点拿到 fx centerPoint作为原点
+    // 根据staticPoint拿到中心点 和 中心点拿到 fx
     const direction = this.#reszieTool.direction;
     const staticPoint = this.#reszieTool.staticPoint;
     const centerPoint = this.center;
