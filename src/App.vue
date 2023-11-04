@@ -30,9 +30,6 @@ function mouseupHandler(e: MouseEvent) {
       <div class="slot" >
         <div contenteditable="true">
           sfhdckbldsjvchdsncsvjsdgcjhsdgvsdfbsjdkgvsdhjvcsdjhcsdhjcvdshhjsvdfv;
-          kchvsdkhcbdskvjhbsdvknldsnvjkldsfnvfd
-          fsdvjcjhsdbvckjdsvbhsdvsdhjvsdmvbndfs
-          djvsvkjfhvlfdbdlfjbdfkvbjvhsdgchnsdkvjhsdcbdcn 
         </div>
       </div>
     </VueTransable>

@@ -126,6 +126,7 @@ export class Transable {
   /**
    * @param mousePoint 
    * @description 缩放四条边
+   * // todo 需要一个更好的方案-----这是临时方案
    */
   resizeSide(mousePoint: MousePoint) {
     // 根据staticPoint拿到中心点 和 中心点拿到 fx

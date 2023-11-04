@@ -1,7 +1,7 @@
 {
   "name": "vue-transable",
   "private": false,
-  "version": "0.0.6",
+  "version": "0.0.8",
   "type": "module",
   "keywords": [
     "drag",
@@ -29,11 +29,9 @@
   "peerDependencies": {
     "vue": "^3.3.4"
   },
-  "dependencies": {
-    "vite-plugin-vue-devtools": "1.0.0-rc.5",
-    "vue": "^3.3.4"
-  },
   "devDependencies": {
+    "vite-plugin-vue-devtools": "1.0.0-rc.5",
+    "vue": "^3.3.4",
     "@vitejs/plugin-vue": "^4.4.0",
     "typescript": "^5.0.2",
     "vite": "^4.4.5",
